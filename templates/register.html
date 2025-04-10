@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #27ae60;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <form id="registerForm">
+            <!-- <input type="text" name="name" id="name" placeholder="Name" required /> -->
+            <input type="email" name="email" id="email" placeholder="Email" required />
+            <input type="password" name="password" id="password" placeholder="Password" required minlength="6" />
+            <input type="password" name="repeatPassword" id="repeatPassword" placeholder="Repeat Password" required minlength="6" />
+            <button type="submit">Register</button>
+        </form>
+        <div class="link">
+            Already have an account? <a href="/login">Login</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const repeatPassword = document.getElementById("repeatPassword").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            const res = await fetch("/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ repeatPassword, email, password })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                alert(result.message || "Registration successful. Go to your given Email for activate link and than login.");
+                window.location.reload()
+            } else {
+                alert(result.error || "Registration failed");
+            }
+        });
+    </script>
+</body>
+
+</html>
