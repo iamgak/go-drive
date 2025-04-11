@@ -15,7 +15,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/iamgak/go-drive/pkg"
 	"github.com/joho/godotenv"
-	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -23,7 +22,6 @@ import (
 
 type UserModelORM struct {
 	db     *gorm.DB
-	redis  *redis.Client
 	logger *logrus.Logger
 }
 
@@ -94,7 +92,7 @@ func (m *UserModelORM) ActivateAccount(token string) error {
 		return err
 	}
 
-	result := m.db.Model(&user).Updates(map[string]interface{}{
+	result := m.db.Model(&user).Updates(map[string]any{
 		"activation_token": nil,
 		"active":           true,
 		"verified_at":      time.Now(),
@@ -172,7 +170,7 @@ func (m *UserModelORM) ValidateUserData(user *UserStruct, register bool) *pkg.Va
 
 func (m *UserModelORM) UserActivityLog(activity *UserActivityLog) error {
 	result := m.db.Model(&UserActivityLog{}).Where("user_id = ? AND activity =? AND superseded = 0", activity.UserID, activity.Activity).
-		Updates(map[string]interface{}{"superseded": 1, "updated_at": time.Now()})
+		Updates(map[string]any{"superseded": 1, "updated_at": time.Now()})
 
 	if result.Error != nil && result.Error != sql.ErrNoRows {
 		return result.Error
