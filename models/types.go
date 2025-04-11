@@ -35,6 +35,7 @@ type UserActivityLog struct {
 	UserID     uint       `gorm:"index"`
 	Activity   string     `gorm:"not null"`
 	Superseded bool       `gorm:"default:0"`
+	IpAddr     string     `gorm:"default:null"`
 	CreatedAt  *time.Time `gorm:"type:datetime;default:CURRENT_TIMESTAMP()"`
 	UpdatedAt  *time.Time `gorm:"default:null"`
 }

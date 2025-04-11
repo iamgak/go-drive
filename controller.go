@@ -30,6 +30,7 @@ type DriveTemplateData struct {
 }
 
 func (app *Application) ShowLoginPage(c *gin.Context) {
+
 	c.HTML(http.StatusOK, "login.html", gin.H{
 		"title": "Login",
 	})
@@ -43,7 +44,7 @@ func (app *Application) ShowRegisterPage(c *gin.Context) {
 
 func (app *Application) UserActivateAccount(c *gin.Context) {
 	token := c.Param("token")
-	err := app.Model.UsersORM.ActivateAccount(token)
+	err := app.Model.UsersORM.ActivateAccount(c, token)
 	if err != nil {
 		app.Logger.Error(err.Error())
 		if err == pkg.ErrNoRecord {
@@ -161,7 +162,7 @@ func (app *Application) CreateFolder(c *gin.Context) {
 		return
 	}
 
-	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("Folder Created: %s ", relPath)}
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("Folder Created: %s ", relPath), IpAddr: c.ClientIP()}
 	err = app.Model.UsersORM.UserActivityLog(&activity)
 	if err != nil {
 		log.Println("Error creating folder activity ", err)
@@ -205,7 +206,7 @@ func (app *Application) DeleteFileOrFolder(c *gin.Context) {
 		return
 	}
 
-	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("File Deleted: %s ", target)}
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("File Deleted: %s ", target), IpAddr: c.ClientIP()}
 	err = app.Model.UsersORM.UserActivityLog(&activity)
 	if err != nil {
 		log.Println("Error deleting file activity ", err)
@@ -238,7 +239,7 @@ func (app *Application) RenameFolder(c *gin.Context) {
 		return
 	}
 
-	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("File Renamed: %s to %s ", req.OldPath, req.NewPath)}
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("File Renamed: %s to %s ", req.OldPath, req.NewPath), IpAddr: c.ClientIP()}
 	err = app.Model.UsersORM.UserActivityLog(&activity)
 	if err != nil {
 		log.Println("Error renaming file activity ", err)

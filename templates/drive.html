@@ -124,7 +124,7 @@
         {{end}}
         {{else}}
         <li><em>No file found in this directory.</em></li>
-      {{end}}
+        {{end}}
     </ul>
 
     <form id="uploadForm" enctype="multipart/form-data">
@@ -142,8 +142,7 @@
         <div id="newFolderSection">
 
             <label for="newFolderName">New Folder Name:</label>
-            <input type="text" id="newFolderName" name="newFolderName"
-                placeholder="e.g. report.pdf or newfolder" />
+            <input type="text" id="newFolderName" name="newFolderName" placeholder="e.g. report.pdf or newfolder" />
         </div>
 
         <div id="fileUploadSection">
@@ -172,12 +171,12 @@
             if (type === 'file') {
                 const fileInput = document.getElementById('file');
                 if (!fileInput.files.length) return alert("Please select a file.");
-                
+
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
                 formData.append('save_path', name);
 
-                
+
                 const res = await fetch(`/drive/upload/`, {
                     method: 'POST',
                     body: formData
@@ -185,18 +184,22 @@
                 const result = await res.json();
                 alert(result.message || JSON.stringify(result));
                 location.reload();
-                
+
             } else {
-                console.log("input action is ",type)
-                const res = await fetch('/drive/create', {
+                fetch('/drive/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ save_path: name, folder_name: document.querySelector("#newFolderName").value  })
-                });
-                console.log(" input name is : {{.CurrentPath}}/" + name)
-                const result = await res.json();
-                alert(result.message || JSON.stringify(result));
-                location.reload();
+                    body: JSON.stringify({ save_path: name, folder_name: document.querySelector("#newFolderName").value })
+                })
+                    .then((res) => res.json())
+                    .then((result) => {
+                        alert(result.message || JSON.stringify(result));
+                        location.reload();
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        alert("Error Completing Request")
+                    });
             }
         });
 
@@ -207,7 +210,11 @@
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ old_path: oldPath, new_path: newPath })
-            }).then(() => location.reload());
+            }).then(() => location.reload())
+                .catch((err) => {
+                    console.log(err)
+                    alert("Error Completing Request")
+                });;
         }
 
         function deleteItem(path) {
@@ -216,7 +223,12 @@
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path })
-            }).then(() => location.reload());
+            })
+                .then(() => location.reload())
+                .catch((err) => {
+                    console.log(err)
+                    alert("Error Completing Request")
+                });
         }
 
         document.getElementById('uploadType').addEventListener('change', function () {

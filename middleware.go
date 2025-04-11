@@ -151,6 +151,7 @@ func (app *Application) TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc
 		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
 		defer cancel()
 		c.Request = c.Request.WithContext(ctx)
+		c.Set("ip_addr", c.ClientIP())
 		c.Next()
 		if ctx.Err() == context.DeadlineExceeded {
 			c.JSON(http.StatusGatewayTimeout, gin.H{"error": "request timeout"})

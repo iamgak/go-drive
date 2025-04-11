@@ -41,7 +41,10 @@ func (m *UserModelORM) RegisterUser(ctx context.Context, email, password, ip str
 		return pkg.ErrNoRecord
 	}
 
-	activity := UserActivityLog{UserID: user.ID, Activity: "New User Register"}
+	ip, _ = ctx.Value("ip_addr").(string)
+
+	fmt.Println("print ip addr", ip)
+	activity := UserActivityLog{UserID: user.ID, Activity: "New User Register", IpAddr: ip}
 	return m.UserActivityLog(&activity)
 }
 
@@ -65,13 +68,15 @@ func (m *UserModelORM) LoginUser(c context.Context, creds *UserStruct) (string, 
 	if err != nil {
 		return "", err
 	}
-
-	activity := UserActivityLog{UserID: user.ID, Activity: "Logged In"}
+	ip, _ := c.Value("ip_addr").(string)
+	fmt.Println("print ip ", ip)
+	activity := UserActivityLog{UserID: user.ID, Activity: "Logged In", IpAddr: ip}
 	err = m.UserActivityLog(&activity)
 	if err != nil {
 		return "", err
 	}
 
+	fmt.Println("print ip addr", ip)
 	return token, m.CreateSession(token, user.ID)
 }
 
@@ -83,7 +88,7 @@ func (m *UserModelORM) CreateSession(token string, user_id uint) error {
 	user_session := UsersSession{UserID: user_id, LoginToken: token}
 	return m.db.Create(&user_session).Error
 }
-func (m *UserModelORM) ActivateAccount(token string) error {
+func (m *UserModelORM) ActivateAccount(ctx context.Context, token string) error {
 	var user User
 	if err := m.db.Select("id").Where("activation_token = ?", token).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -102,7 +107,9 @@ func (m *UserModelORM) ActivateAccount(token string) error {
 		return result.Error
 	}
 
-	activity := UserActivityLog{UserID: user.ID, Activity: "Account Activated"}
+	ip, _ := ctx.Value("ip_addr").(string)
+	fmt.Println("print ip addr", ip)
+	activity := UserActivityLog{UserID: user.ID, Activity: "Account Activated", IpAddr: ip}
 	return m.UserActivityLog(&activity)
 }
 
