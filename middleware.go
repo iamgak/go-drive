@@ -150,14 +150,8 @@ func (app *Application) TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
 		defer cancel()
-
-		// Replace the original request context with the new one
 		c.Request = c.Request.WithContext(ctx)
-
-		// Continue to the next handler
 		c.Next()
-
-		// If the context was canceled, return timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			c.JSON(http.StatusGatewayTimeout, gin.H{"error": "request timeout"})
 			c.Abort()
@@ -166,7 +160,7 @@ func (app *Application) TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc
 	}
 }
 
-// just in case in fututre maintainance needed
+// just in case in future maintainance needed
 func MaintenanceMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole := c.GetHeader("X-User-Role") // only open for me

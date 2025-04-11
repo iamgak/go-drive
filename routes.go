@@ -16,23 +16,28 @@ func (app *Application) InitRouter() *gin.Engine {
 
 	r.LoadHTMLGlob("templates/*.html")
 
-	// Route for login page
-	r.GET("/login", app.ShowLoginPage)
-	r.GET("/register", app.ShowRegisterPage)
 	authorise := r.Group("/drive")
 
 	authorise.Use(app.LoginMiddleware(), secureHeaders(), app.rateLimiter())
 	{
-		// write API
-		authorise.POST("/create", app.CreateFolder)
-		authorise.POST("/upload/", app.UploadFile)
-		authorise.PUT("/rename", app.RenameFolder)
-		authorise.DELETE("/delete", app.DeleteFileOrFolder)
+		//listing of all the users files and folders
 		authorise.GET("/*path", app.DriveListing)
+		// write API
+		authorise.POST("/create", app.CreateFolder)         //Create new folder
+		authorise.POST("/upload/", app.UploadFile)          //Create new file
+		authorise.PUT("/rename", app.RenameFolder)          // rename file or folder
+		authorise.DELETE("/delete", app.DeleteFileOrFolder) // deleter file or folder
 	}
 
+	//html pages
+	r.GET("/login", app.ShowLoginPage)
+	r.GET("/register", app.ShowRegisterPage)
+
+	// req handle
 	r.POST("/login", app.UserLogin)
 	r.POST("/register", app.UserRegister)
+
+	//account activate after registration
 	r.GET("/activation_token/:token", app.UserActivateAccount)
 	return r
 }

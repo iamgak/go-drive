@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"io"
+	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -129,7 +131,7 @@ func (app *Application) CreateFolder(c *gin.Context) {
 	}
 
 	var req Req
-	if err := c.ShouldBindJSON(&req); err != nil || req.SavePath == "" || req.FolderName == "" {
+	if err := c.ShouldBindJSON(&req); err != nil || req.FolderName == "" {
 		app.ErrorJSONResponse(c.Writer, http.StatusBadRequest, "Missing save_path or folder_name")
 		return
 	}
@@ -159,6 +161,11 @@ func (app *Application) CreateFolder(c *gin.Context) {
 		return
 	}
 
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("Folder Created: %s ", relPath)}
+	err = app.Model.UsersORM.UserActivityLog(&activity)
+	if err != nil {
+		log.Println("Error creating folder activity ", err)
+	}
 	app.sendJSONResponse(c.Writer, http.StatusOK, "Folder created")
 }
 
@@ -188,7 +195,6 @@ func (app *Application) DeleteFileOrFolder(c *gin.Context) {
 		return
 	}
 
-	// Delete file or folder accordingly
 	if info.IsDir() {
 		err = os.RemoveAll(target)
 	} else {
@@ -199,6 +205,11 @@ func (app *Application) DeleteFileOrFolder(c *gin.Context) {
 		return
 	}
 
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("File Deleted: %s ", target)}
+	err = app.Model.UsersORM.UserActivityLog(&activity)
+	if err != nil {
+		log.Println("Error deleting file activity ", err)
+	}
 	app.sendJSONResponse(c.Writer, http.StatusOK, "Folder deleted")
 }
 
@@ -208,7 +219,7 @@ func (app *Application) RenameFolder(c *gin.Context) {
 		NewPath string `json:"new_path"`
 	}
 	var req Req
-	if err := c.ShouldBindJSON(&req); err != nil || req.OldPath == "" || req.NewPath == "" {
+	if err := c.ShouldBindJSON(&req); err != nil || req.OldPath == "" {
 		app.ErrorJSONResponse(c.Writer, http.StatusBadRequest, "Invalid input")
 		return
 	}
@@ -227,7 +238,12 @@ func (app *Application) RenameFolder(c *gin.Context) {
 		return
 	}
 
-	app.sendJSONResponse(c.Writer, http.StatusOK, "Folder renamed")
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: fmt.Sprintf("File Renamed: %s to %s ", req.OldPath, req.NewPath)}
+	err = app.Model.UsersORM.UserActivityLog(&activity)
+	if err != nil {
+		log.Println("Error renaming file activity ", err)
+	}
+	app.sendJSONResponse(c.Writer, http.StatusOK, "Folder Renamed")
 }
 
 func (app *Application) UploadFile(c *gin.Context) {
@@ -299,6 +315,11 @@ func (app *Application) UploadFile(c *gin.Context) {
 		return
 	}
 
+	activity := models.UserActivityLog{UserID: app.UserID, Activity: "File Uploaded: " + header.Filename}
+	err = app.Model.UsersORM.UserActivityLog(&activity)
+	if err != nil {
+		log.Println("Error saving activity ", err)
+	}
 	app.sendJSONResponse(c.Writer, http.StatusOK, "File uploaded successfully")
 }
 

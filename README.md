@@ -1,6 +1,6 @@
 # Drive Management System
 
-Welcome to the **Drive Management System**! A lightweight file management system to upload, create folders, rename, and delete files or folders.
+Welcome to the **Drive Management System**! A lightweight file management system to create, upload, rename, delete files (of given types) or folders.
 
 ## Features
 - **User Authentication:** Secure registration and login with JWT.
@@ -10,7 +10,7 @@ Welcome to the **Drive Management System**! A lightweight file management system
 - **Rate Limiting:** Goroutine-based rate limiter.
 - **Server Error Handling:** Env-based maintenance mode.
 - **Context Middleware:** Each request has a **5-second timeout** for better resource management.
-- **Database Migrations:** Managed using GORM.
+- **Database Migrations:** Managed migration using GORM.
 - **Directory Listing:** View the contents of your directories.
 
 ## Technologies Used
@@ -23,8 +23,6 @@ Welcome to the **Drive Management System**! A lightweight file management system
 - **Lagrus:** Logging system
 - **SecureHeader:** Additional security headers
 - **HTML/CSS/JS:** – UI with client-side form handling and validation
-
-
 
 ## API Endpoints
 
@@ -46,11 +44,6 @@ Welcome to the **Drive Management System**! A lightweight file management system
 ### **Prerequisites**
 - Install **GoLang** ([Download](https://golang.org/dl/))
 - Install **MySQL** ([Download](https://www.mysql.com/download/))
-- Install **Redis** ([Install Guide](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis-on-linux/))
-- Install `golang-migrate` for database migrations:
-  ```sh
-  go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-  ```
 
 ### **Installation**
 1. Clone the repository:
@@ -69,13 +62,9 @@ Welcome to the **Drive Management System**! A lightweight file management system
    ```sh
    mysql -u root -p -e "CREATE DATABASE go_task;"
    ```
-5. Apply database migrations:
+5. Run the server:
    ```sh
-   migrate -path=./migrations -database "mysql://root:password@tcp(127.0.0.1:3306)/go_task?parseTime=true" up
-   ```
-6. Run the server:
-   ```sh
-   go run cmd/cli
+   go run .
    ```
 
 ## Context Middleware (5-Second Timeout)
